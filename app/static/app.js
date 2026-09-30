@@ -584,6 +584,13 @@
         numField("monitor.tick_seconds", "调度心跳(秒)", s["monitor.tick_seconds"]),
         numField("log.retain_days", "日志保留(天)", s["log.retain_days"]),
       ], "调度器多久跑一轮、探测结果保留多久。"));
+      card.appendChild(settingsSection("切换指令", [
+        textField("switch.am_base", "账号池基址", s["switch.am_base"], "http://10.0.0.2:8045"),
+        pwdField("switch.am_token", "账号池令牌", s["switch.am_token"], true),
+        textField("switch.cb_base", "模型网关基址", s["switch.cb_base"], "http://10.0.0.2:8666"),
+        pwdField("switch.cb_token", "模型网关令牌", s["switch.cb_token"], true),
+        textField("switch.hermes_base", "Agent 切换接口基址", s["switch.hermes_base"], "http://10.0.0.2:8620"),
+      ], "企微菜单「切换」与文本指令（@am / @cb / @hermes）用；全部本地转发，0 Token。留空则该指令回复「尚未配置」。"));
       card.appendChild(settingsSection("外部事件接入", [
         pwdField("ingest.api_key", "接入密钥 (Ingest Key)", s["ingest.api_key"], true),
       ], "外部脚本（如 NAS 上的 watcher）通过 POST /api/ingest 汇入告警，复用去重/静音/通知。留空则禁用该接口。"));

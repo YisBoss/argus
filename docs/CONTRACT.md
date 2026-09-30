@@ -42,12 +42,17 @@
 见 `app/settings.py` 的 `DEFAULT_SETTINGS`。存储方式：SQLite 表 `settings(key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT)`，
 启动时用 `DEFAULT_SETTINGS` 补齐缺失键。
 
-敏感项（`SECRET_KEYS`）：`panel.admin_password`、`wecom.secret`、`wecom.callback_token`、`wecom.callback_aes_key`、`ingest.api_key`。
+敏感项（`SECRET_KEYS`）：`panel.admin_password`、`wecom.secret`、`wecom.callback_token`、`wecom.callback_aes_key`、`ingest.api_key`、`switch.am_token`、`switch.cb_token`。
 `GET /api/settings` 返回时用 `settings.mask_settings()` 打码成 `********`；`PUT` 时若收到 `********` 表示「不修改」。
 
 **内部键**（`settings.INTERNAL_SETTING_KEYS`）：存在 `settings` 表里但**不是**面板设置项，
 `GET /api/settings` 必须剔除、`PUT /api/settings` 不接受。目前只有 `menu.local`
 （菜单页保存的本地菜单 JSON，键名固定为 `menu.local`，值为 `{"button":[...]}` 的 JSON 字符串）。
+
+**切换指令目标**（`switch.*`）：`switch.am_base` / `switch.am_token`（账号池）、
+`switch.cb_base` / `switch.cb_token`（模型网关）、`switch.hermes_base`（Agent 模型切换接口）。
+供企微菜单「切换」与文本指令（`@am` / `@cb` / `@hermes`）使用，实现见 `app/api/switcher.py`。
+**全部留空即视为未配置**，对应指令回复「尚未配置」；代码里不写死任何部署方的地址/令牌。
 
 ## 4. 数据库表结构（固定）
 

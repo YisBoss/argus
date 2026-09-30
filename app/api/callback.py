@@ -83,6 +83,18 @@ async def callback_receive(request: Request) -> PlainTextResponse:
 
     db.add_event("wecom_callback", dict(msg))
 
+    # 纯文本指令（@am / @cb / @hermes）：本地解析，0 Token
+    if msg.get("MsgType") == "text":
+        from .switcher import handle_text_command
+        reply_msg = handle_text_command(str(msg.get("Content") or ""))
+        if reply_msg:
+            ts = str(int(time.time()))
+            nonce_resp = nonce or str(int(time.time()))
+            reply_xml = wecom_client.build_encrypted_reply(
+                reply_msg, token, ts, nonce_resp, aes_key, corp_id,
+            )
+            return FastResponse(content=reply_xml, media_type="application/xml")
+
     # 处理 click 事件
     if msg.get("MsgType") == "event" and msg.get("Event") == "click":
         event_key = msg.get("EventKey", "")
@@ -102,6 +114,19 @@ async def callback_receive(request: Request) -> PlainTextResponse:
 
 def _handle_click(event_key: str) -> str | None:
     """把菜单 click 事件转成一句回复文本。返回 None 表示不回复。"""
+    # 切换类菜单：候选清单由本地 HTTP 转发实时生成（见 switcher.py）
+    if event_key in ("SWITCH_AM", "SWITCH_CB", "SWITCH_HERMES"):
+        from .switcher import (
+            handle_switch_am_click,
+            handle_switch_cb_click,
+            handle_switch_hermes_click,
+        )
+        return {
+            "SWITCH_AM": handle_switch_am_click,
+            "SWITCH_CB": handle_switch_cb_click,
+            "SWITCH_HERMES": handle_switch_hermes_click,
+        }[event_key]()
+
     if event_key == "SILENCE_1H":
         monitor.silence(60)
         return f"已开启静音 1 小时。当前剩余 {monitor.silence_remaining()} 分钟。"

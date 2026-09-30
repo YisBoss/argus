@@ -55,6 +55,16 @@ DEFAULT_SETTINGS: dict[str, str] = {
     "monitor.tick_seconds": "30",
     # 探测结果保留天数
     "log.retain_days": "7",
+    # --- 「切换」指令目标（企微菜单 / 文本指令，0 Token 本地转发）---
+    # 全部留空则对应指令回复「尚未配置」。基址例：http://10.0.0.2:8045
+    # 1) 账号池管理接口（GET /api/accounts、POST /api/proxy/preferred-account）
+    "switch.am_base": "",
+    "switch.am_token": "",
+    # 2) 模型网关（GET /api/v1/info、PUT /api/v1/settings/model?scope=user）
+    "switch.cb_base": "",
+    "switch.cb_token": "",
+    # 3) Agent 模型切换接口（POST /api/hermes/switch）
+    "switch.hermes_base": "",
 }
 
 # 敏感项：面板返回时打码，日志里不打印
@@ -64,6 +74,8 @@ SECRET_KEYS: set[str] = {
     "wecom.callback_token",
     "wecom.callback_aes_key",
     "ingest.api_key",
+    "switch.am_token",
+    "switch.cb_token",
 }
 
 # 面板里这些项用密码框渲染
@@ -72,6 +84,8 @@ PASSWORD_KEYS: set[str] = {
     "wecom.secret",
     "wecom.callback_aes_key",
     "ingest.api_key",
+    "switch.am_token",
+    "switch.cb_token",
 }
 
 MASK = "********"
